@@ -186,7 +186,7 @@ class ZodiacoMapAStar(ZodiacoMap):
     def solve(self):
         start = Node(state=self.start, parent=None, action=None, cost=0, heuristic=self.heuristic(self.start))
         frontier = PriorityQueue()
-        f  start.heuristic, start
+        frontier.put((start.cost + start.heuristic, start))
         self.explored = []  # Mudamos para lista para manter a ordem
         explored_set = set()  # Mantemos um conjunto para verificação rápida
 
