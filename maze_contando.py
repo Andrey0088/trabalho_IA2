@@ -207,7 +207,7 @@ class ZodiacoMapAStar(ZodiacoMap):
         while not frontier.empty():
             _, node = frontier.get()
 
-            #  Só aceita como solução se tiver visitado todas as 12 casas
+            # Verifica se o objetivo foi alcançado e todas as casas foram visitadas
             if node.state == self.goal and len(self.casas_visitadas) == 12:
                 actions = []
                 cells = []
@@ -218,30 +218,26 @@ class ZodiacoMapAStar(ZodiacoMap):
                 actions.reverse()
                 cells.reverse()
                 self.solution = (actions, cells)
-                print(f"Nós explorados: {len(self.explored)}")
-                print(f"Caminho encontrado: {len(cells)} passos")
-                print("Solução:", self.solution)
+
+                if len(self.casas_visitadas) == 12:
+                    print(f"Nós explorados: {len(self.explored)}")
+                    print(f"Caminho encontrado: {len(cells)} passos")
+                    print("Solução:", self.solution)
+            
                 return
 
             if node.state not in explored_set:
-                self.explored.append(node.state)
-                explored_set.add(node.state)
-
-                #  Executa a luta ao visitar uma casa ainda não visitada
-                if node.state in self.casas and node.state not in self.casas_visitadas:
-                    self.lutar_em_casa(self.casas[node.state], node.state)
+                self.explored.append(node.state)  # Adiciona à lista na ordem de exploração
+                explored_set.add(node.state)     # Adiciona ao conjunto para verificação
 
             for action, state in self.neighbors(node.state):
-                #  Impede visitar o objetivo antes de todas as 12 casas
-                if state == self.goal and len(self.casas_visitadas) < 12:
-                    continue
-
                 if state not in explored_set:
                     custo = node.cost + self.custo_terreno(state)
+                    if state in self.casas:
+                        self.lutar_em_casa(self.casas[state], state)
                     h = self.heuristic(state)
                     child = Node(state=state, parent=node, action=action, cost=custo, heuristic=h)
                     frontier.put((child.cost + child.heuristic, child))
-
                     
                     
                     
