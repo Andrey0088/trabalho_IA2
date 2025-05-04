@@ -154,7 +154,7 @@ class ZodiacoMap:
                 x1, y1 = (j + 1) * cell - borda, (i + 1) * cell - borda
 
                 pos = (i, j)
-
+                tipo = self.walls[i][j]
                 if pos == self.start:
                     fill = (255, 0, 0)
                 elif pos == self.goal:
@@ -163,13 +163,20 @@ class ZodiacoMap:
                     fill = (255, 255, 0)
                 elif pos in self.casas:
                     fill = (0, 0, 255)
-                elif pos in ordem_visita:
-                    total = len(ordem_visita)
-                    idx = ordem_visita[pos]
-                    intensidade = int(255 * (1 - (idx - 1) / (total - 1)))
-                    fill = (intensidade, intensidade, 255)
+                # elif pos in ordem_visita:
+                #     total = len(ordem_visita)
+                #     idx = ordem_visita[pos]
+                #     intensidade = int(255 * (1 - (idx - 1) / (total - 1)))
+                #     fill = (intensidade, intensidade, 255)
+                elif tipo == "montanha":
+                    fill = (105, 105, 105)  # cinza escuro
+                elif tipo == "rochoso":
+                    fill = (169, 169, 169)  # cinza claro
+                elif tipo == "plano":
+                    fill = (255, 255, 255)  # branco
                 else:
-                    fill = (40, 40, 40)
+                    fill = (40, 40, 40)  
+
 
                 draw.rectangle([x0, y0, x1, y1], fill=fill)
 
@@ -201,7 +208,7 @@ class ZodiacoMapAStar(ZodiacoMap):
             _, node = frontier.get()
 
             # Verifica se o objetivo foi alcançado e todas as casas foram visitadas
-            if node.state == self.goal:
+            if node.state == self.goal and len(self.casas_visitadas) == 12:
                 actions = []
                 cells = []
                 while node.parent:
