@@ -93,7 +93,7 @@ class ZodiacoMap:
                 ("down", (row+1, col)),
                 ("left", (row, col-1)),
                 ("right", (row, col+1))]
-        return [(a, s) for a, s in dirs if 0 <= s[0] < self.height and 0 <= s[1] < self.width and self.walls[s[0]][s[1]] != "montanha"]
+        return [(a, s) for a, s in dirs if 0 <= s[0] < self.height and 0 <= s[1] < self.width]
 
     def selecionar_time(self):
         vivos = [c for c in self.cavaleiros if c.pode_lutar()]
@@ -154,7 +154,7 @@ class ZodiacoMap:
                 x1, y1 = (j + 1) * cell - borda, (i + 1) * cell - borda
 
                 pos = (i, j)
-                fill = (40, 40, 40) if self.walls[i][j] == "montanha" else (237, 240, 252)
+
                 if pos == self.start:
                     fill = (255, 0, 0)
                 elif pos == self.goal:
@@ -164,15 +164,22 @@ class ZodiacoMap:
                 elif pos in self.casas:
                     fill = (0, 0, 255)
                 elif pos in ordem_visita:
-                    fill = (255, 255, 255)
+                    total = len(ordem_visita)
+                    idx = ordem_visita[pos]
+                    intensidade = int(255 * (1 - (idx - 1) / (total - 1)))
+                    fill = (intensidade, intensidade, 255)
+                else:
+                    fill = (40, 40, 40)
 
                 draw.rectangle([x0, y0, x1, y1], fill=fill)
 
+                # Números sempre por cima, inclusive da solução
                 if pos in ordem_visita:
                     numero = str(ordem_visita[pos])
                     bbox = draw.textbbox((0, 0), numero, font=font)
                     w, h = bbox[2] - bbox[0], bbox[3] - bbox[1]
                     draw.text((x0 + (cell - w) / 2, y0 + (cell - h) / 2), numero, fill=(0, 0, 0), font=font)
+
 
         img.save(nome_arquivo)
         print(f"Imagem salva como {nome_arquivo}")
@@ -194,7 +201,7 @@ class ZodiacoMapAStar(ZodiacoMap):
             _, node = frontier.get()
 
             # Verifica se o objetivo foi alcançado e todas as casas foram visitadas
-            if node.state == self.goal and len(self.casas_visitadas) == 12:
+            if node.state == self.goal:
                 actions = []
                 cells = []
                 while node.parent:
@@ -204,8 +211,12 @@ class ZodiacoMapAStar(ZodiacoMap):
                 actions.reverse()
                 cells.reverse()
                 self.solution = (actions, cells)
-                print(f"Nós explorados: {len(self.explored)}")
-                print(f"Caminho encontrado: {len(cells)} passos")
+
+                if len(self.casas_visitadas) == 12:
+                    print(f"Nós explorados: {len(self.explored)}")
+                    print(f"Caminho encontrado: {len(cells)} passos")
+                    print("Solução:", self.solution)
+            
                 return
 
             if node.state not in explored_set:
