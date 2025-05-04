@@ -1,4 +1,4 @@
-# zodiaco_solver_a_star.py aaa
+# zodiaco_solver_a_star.py aaab
 import sys
 from queue import PriorityQueue
 from PIL import Image, ImageDraw
