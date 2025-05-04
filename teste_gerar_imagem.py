@@ -1,9 +1,9 @@
-from pillow import Image
+from PIL import Image
 import numpy as np
 import matplotlib.pyplot as plt
 
 # 1. Abrir a imagem
-imagem = Image.open("eda8b7ab-8499-4a88-961d-0a1d31897a52.png")
+imagem = Image.open("")
 pixels = np.array(imagem)
 
 # 2. Definir o tamanho da célula (assumindo uma grade uniforme)
