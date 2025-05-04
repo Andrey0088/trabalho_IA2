@@ -15,8 +15,6 @@ class Cavaleiro:
     def lutar(self):
         self.energia -= 1
 
-    def teste(self):
-        return self.energia > 0
 
 class Node():
     def __init__(self, state, parent, action, cost, heuristic):
