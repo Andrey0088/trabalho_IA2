@@ -4,4 +4,6 @@
 # adicionar lutadores
 # adicionar escolha equipe
 
-# corrigir erro: deve percorrer todas as casas
+# ADICIONAR VERIFICAÇÕES:
+#   visitou todas as casas
+#   deve parar quando acabar as energias
