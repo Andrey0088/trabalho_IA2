@@ -1,3 +1,4 @@
+# ler como casa : ok
 # adicionar casas
 
 # adicionar lutadores

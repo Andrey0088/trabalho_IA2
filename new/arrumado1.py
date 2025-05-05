@@ -46,7 +46,7 @@ class MapaZodiaco:
                 elif c == "C":
                     self.casas[(i, j)] = casa_id
                     casa_id += 1
-                    row.append("plano") #TODO: ler como casa
+                    row.append("casa") #TODO: ler como casa
                 else:
                     row.append("plano")
             self.walls.append(row)
@@ -61,7 +61,7 @@ class MapaZodiaco:
 
     def custo_terreno(self, estado):
         tipo = self.walls[estado[0]][estado[1]]
-        return {"plano": 1, "rochoso": 5, "montanha": 200}.get(tipo, 1)
+        return {"casa": 0 , "plano": 1, "rochoso": 5, "montanha": 200}.get(tipo, 1)
 
     def neighbors(self, estado):
         linha, col = estado
@@ -81,26 +81,48 @@ class MapaZodiaco:
         terreno = self.custo_terreno(estado)
         return distancia + terreno
 
+    # LUTAR
+    def lutar(self, estado):
+        print("lutou") #todo : para debug
+        return 0
+
     def resolve(self, inicio, objetivo):
         fronteira = PriorityQueue()
         fronteira.put((0, inicio))
         veio_de = {inicio: None}
         custo_ate_agora = {inicio: 0}
+        self.explored = []  # Mudamos para lista para manter a ordem
+        self.explored_set = set()  # Mudamos para lista para manter a ordem
+
 
         while not fronteira.empty():
             _, atual = fronteira.get()
-
+            lutou = 0 #todo : para debug
             if atual == objetivo:
                 break
-
+            
+            # Expandir vizinhos e escolher o mais promissor(com base na heurística)
             for _, vizinho in self.neighbors(atual):
+                # se achar uma casa ,lutar 
+                    # verificar  se já lutou na casa
+                estadoAtual = self.walls[vizinho[0]][vizinho[1]]
+                if (estadoAtual == "casa" and estadoAtual not in self.explored):
+                    self.lutar(vizinho)           
+                    lutou+=1 #todo : para debug      
+                
                 novo_custo = custo_ate_agora[atual] + self.custo_terreno(vizinho)
                 if vizinho not in custo_ate_agora or novo_custo < custo_ate_agora[vizinho]:
                     custo_ate_agora[vizinho] = novo_custo
                     prioridade = novo_custo + self.heuristic(vizinho, objetivo)
                     fronteira.put((prioridade, vizinho))
-                    veio_de[vizinho] = atual
-
+                    veio_de[vizinho] = atual  
+                    self.explored.append(vizinho)
+                    self.explored_set.add(vizinho)
+                    print("andou\n") #todo : para debug
+                 
+             
+            
+            
         # Reconstrói o caminho
         atual = objetivo
         caminho = []
