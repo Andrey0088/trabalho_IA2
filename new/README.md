@@ -1,5 +1,5 @@
 # ler como casa : ok
-# adicionar casas
+# registrar casas : ok
 
 # adicionar lutadores
 # adicionar escolha equipe

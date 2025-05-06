@@ -46,7 +46,7 @@ class MapaZodiaco:
                 elif c == "C":
                     self.casas[(i, j)] = casa_id
                     casa_id += 1
-                    row.append("casa") #TODO: ler como casa
+                    row.append("casa")
                 else:
                     row.append("plano")
             self.walls.append(row)
@@ -85,7 +85,20 @@ class MapaZodiaco:
     def lutar(self, estado):
         print("lutou") #todo : para debug
         return 0
-
+    
+    def verificar_casas_visitadas(self, caminho):
+        Qcasas_visitadas = 0
+        total_casas = len(self.casas)  # Número total de casas no mapa
+        
+        for i in range(len(caminho)):
+            if self.walls[caminho[i][0]][caminho[i][1]] == "casa":
+                Qcasas_visitadas += 1    
+        
+        if Qcasas_visitadas == total_casas:
+            print("visitou todas")
+        else:
+            print("não visitou todas")
+                        
     def resolve(self, inicio, objetivo):
         fronteira = PriorityQueue()
         fronteira.put((0, inicio))
@@ -94,10 +107,11 @@ class MapaZodiaco:
         self.explored = []  # Mudamos para lista para manter a ordem
         self.explored_set = set()  # Mudamos para lista para manter a ordem
 
-
+        Casas_visitadas=0
+        
         while not fronteira.empty():
             _, atual = fronteira.get()
-            lutou = 0 #todo : para debug
+            # lutou = 0 #todo : para debug
             if atual == objetivo:
                 break
             
@@ -108,7 +122,7 @@ class MapaZodiaco:
                 estadoAtual = self.walls[vizinho[0]][vizinho[1]]
                 if (estadoAtual == "casa" and estadoAtual not in self.explored):
                     self.lutar(vizinho)           
-                    lutou+=1 #todo : para debug      
+                    # lutou+=1 #todo : para debug                  
                 
                 novo_custo = custo_ate_agora[atual] + self.custo_terreno(vizinho)
                 if vizinho not in custo_ate_agora or novo_custo < custo_ate_agora[vizinho]:
@@ -118,10 +132,7 @@ class MapaZodiaco:
                     veio_de[vizinho] = atual  
                     self.explored.append(vizinho)
                     self.explored_set.add(vizinho)
-                    print("andou\n") #todo : para debug
-                 
-             
-            
+                    # print("andou\n") #todo : para debug                    
             
         # Reconstrói o caminho
         atual = objetivo
@@ -132,9 +143,13 @@ class MapaZodiaco:
             if atual is None:
                 print("Caminho não encontrado.")
                 return [], []
-
+                    
         caminho.append(inicio)
         caminho.reverse()
+        
+
+        # VERIFICAR SE PASSOU POR TODAS AS CASAS
+        self.verificar_casas_visitadas(caminho)
 
         self.melhor_caminho = caminho
         return caminho, list(custo_ate_agora.keys())
