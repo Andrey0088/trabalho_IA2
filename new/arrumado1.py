@@ -81,11 +81,37 @@ class MapaZodiaco:
         terreno = self.custo_terreno(estado)
         return distancia + terreno
 
-    # LUTAR
-    def lutar(self, estado):
-        print("lutou") #todo : para debug
-        return 0
+    def selecionar_time(self):
+        vivos = [c for c in self.cavaleiros if c.pode_lutar()]
+        if not vivos:
+            raise Exception("Todos os cavaleiros estao mortos!")
+
+        # Rotaciona entre os cavaleiros vivos, 2 por luta
+        time = []
+        for _ in range(2):
+            if not vivos:
+                break
+            c = vivos[self.vez_do_cavaleiro % len(vivos)]
+            time.append(c)
+            self.vez_do_cavaleiro += 1
+
+        return time
     
+    # LUTAR
+    def lutar_em_casa(self, casa_id, state):
+        if state in self.casas_visitadas:
+            return
+        dificuldade = self.dificuldades.get(casa_id, 100)
+        time = self.selecionar_time()
+        poder_total = sum(c.poder for c in time)
+        tempo = round(dificuldade / poder_total, 2)
+        for c in time:
+            c.lutar()
+        nomes = ", ".join(c.nome for c in time)
+        self.solucoes.append(f"Casa {casa_id}: {nomes} lutaram. Tempo: {tempo} min")
+        self.tempo_total += tempo
+        self.casas_visitadas.add(state)
+
     def verificar_casas_visitadas(self, caminho):
         Qcasas_visitadas = 0
         total_casas = len(self.casas)  # Número total de casas no mapa
@@ -121,7 +147,7 @@ class MapaZodiaco:
                     # verificar  se já lutou na casa
                 estadoAtual = self.walls[vizinho[0]][vizinho[1]]
                 if (estadoAtual == "casa" and estadoAtual not in self.explored):
-                    self.lutar(vizinho)           
+                    self.lutar_em_casa(self.casas[vizinho], estadoAtual)           
                     # lutou+=1 #todo : para debug                  
                 
                 novo_custo = custo_ate_agora[atual] + self.custo_terreno(vizinho)
@@ -193,7 +219,7 @@ class MapaZodiaco:
 
 
 # Execução
-mapa = MapaZodiaco("mapa.txt")
+mapa = MapaZodiaco("mazeR.txt")
 inicio = mapa.start
 objetivo = mapa.goal
 
