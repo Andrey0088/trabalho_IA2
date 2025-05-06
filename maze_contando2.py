@@ -16,15 +16,17 @@ class Cavaleiro:
         self.energia -= 1
 
 class Node():
-    def __init__(self, state, parent, action, cost, heuristic):
+    def __init__(self, state, parent, action, cost, heuristic, casas_visitadas):
         self.state = state
         self.parent = parent
         self.action = action
         self.cost = cost
         self.heuristic = heuristic
+        self.casas_visitadas = casas_visitadas
 
     def __lt__(self, other):
         return (self.cost + self.heuristic) < (other.cost + other.heuristic)
+
 
 class ZodiacoMap:
     def __init__(self, filename):
@@ -198,17 +200,50 @@ class ZodiacoMapAStar(ZodiacoMap):
         return abs(row1 - row2) + abs(col1 - col2)
 
     def solve(self):
-        start = Node(state=self.start, parent=None, action=None, cost=0, heuristic=self.heuristic(self.start))
+        start_node = Node(
+            state=self.start,
+            parent=None,
+            action=None,
+            cost=0,
+            heuristic=self.heuristic(self.start),
+            casas_visitadas=frozenset()
+        )
+
         frontier = PriorityQueue()
-        frontier.put((start.cost + start.heuristic, start))
-        self.explored = []  # Mudamos para lista para manter a ordem
-        explored_set = set()  # Mantemos um conjunto para verificação rápida
+        frontier.put((start_node.cost + start_node.heuristic, start_node))
+        self.explored = []
+        visited_states = dict()  # (state, casas_visitadas) -> custo
 
         while not frontier.empty():
             _, node = frontier.get()
 
-            # Verifica se o objetivo foi alcançado e todas as casas foram visitadas
-            if node.state == self.goal and len(self.casas_visitadas) == 12:
+            estado_atual = node.state
+            visitadas = node.casas_visitadas
+
+            # Se já visitamos esse estado com o mesmo conjunto de casas, ignore
+            chave = (estado_atual, visitadas)
+            if chave in visited_states and visited_states[chave] <= node.cost:
+                continue
+            visited_states[chave] = node.cost
+
+            self.explored.append(node.state)
+
+            novas_casas_visitadas = set(visitadas)
+            if estado_atual in self.casas and estado_atual not in visitadas:
+                casa_id = self.casas[estado_atual]
+                dificuldade = self.dificuldades[casa_id]
+                time = self.selecionar_time()
+                poder = sum(c.poder for c in time)
+                tempo = round(dificuldade / poder, 2)
+                for c in time:
+                    c.lutar()
+                nomes = ", ".join(c.nome for c in time)
+                self.solucoes.append(f"Casa {casa_id}: {nomes} lutaram. Tempo: {tempo} min")
+                self.tempo_total += tempo
+                novas_casas_visitadas.add(estado_atual)
+
+            if estado_atual == self.goal and len(novas_casas_visitadas) == 12:
+                # Reconstrói o caminho
                 actions = []
                 cells = []
                 while node.parent:
@@ -218,26 +253,26 @@ class ZodiacoMapAStar(ZodiacoMap):
                 actions.reverse()
                 cells.reverse()
                 self.solution = (actions, cells)
-
-                if len(self.casas_visitadas) == 12:
-                    print(f"Nós explorados: {len(self.explored)}")
-                    print(f"Caminho encontrado: {len(cells)} passos")
-                    print("Solução:", self.solution)
-            
+                print(f"Nós explorados: {len(self.explored)}")
+                print(f"Caminho encontrado: {len(cells)} passos")
                 return
 
-            if node.state not in explored_set:
-                self.explored.append(node.state)  # Adiciona à lista na ordem de exploração
-                explored_set.add(node.state)     # Adiciona ao conjunto para verificação
+            for action, new_state in self.neighbors(estado_atual):
+                if self.walls[new_state[0]][new_state[1]] == "montanha":
+                    continue
+                new_cost = node.cost + self.custo_terreno(new_state)
+                h = self.heuristic(new_state)
+                child_node = Node(
+                    state=new_state,
+                    parent=node,
+                    action=action,
+                    cost=new_cost,
+                    heuristic=h,
+                    casas_visitadas=frozenset(novas_casas_visitadas)
+                )
+                frontier.put((child_node.cost + child_node.heuristic, child_node))
 
-            for action, state in self.neighbors(node.state):
-                if state not in explored_set:
-                    custo = node.cost + self.custo_terreno(state)
-                    if state in self.casas:
-                        self.lutar_em_casa(self.casas[state], state)
-                    h = self.heuristic(state)
-                    child = Node(state=state, parent=node, action=action, cost=custo, heuristic=h)
-                    frontier.put((child.cost + child.heuristic, child))
+
                     
                     
                     

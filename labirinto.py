@@ -3,6 +3,10 @@ import sys
 from queue import PriorityQueue
 from PIL import Image, ImageDraw
 
+def salvar_caminho_json(self):
+        caminho_data = {"caminho": self.solution[1]}  # Pega o caminho gerado
+
+
 class Cavaleiro:
     def __init__(self, nome, poder):
         self.nome = nome
@@ -172,7 +176,6 @@ class ZodiacoMapAStar(ZodiacoMap):
         while not frontier.empty():
             _, node = frontier.get()
 
-            # Verifica se o objetivo foi alcançado e todas as casas foram visitadas
             if node.state == self.goal and len(self.casas_visitadas) == 12:
                 actions = []
                 cells = []
@@ -183,8 +186,9 @@ class ZodiacoMapAStar(ZodiacoMap):
                 actions.reverse()
                 cells.reverse()
                 self.solution = (actions, cells)  # Armazena a solução corretamente
-                print(f"Nós explorados: {len(self.explored)}")
-                print(f"Caminho encontrado: {len(cells)} passos")
+
+                # Chama a função para salvar o caminho em JSON
+                self.salvar_caminho_json(cells)
                 return
 
             self.explored.add(node.state)
@@ -197,6 +201,13 @@ class ZodiacoMapAStar(ZodiacoMap):
                     h = self.heuristic(state)
                     child = Node(state=state, parent=node, action=action, cost=custo, heuristic=h)
                     frontier.put((child.cost + child.heuristic, child))
+
+    def salvar_caminho_json(self, caminho):
+        caminho_data = {"caminho": caminho}  # Salva o caminho calculado em formato JSON
+        with open("caminho.json", "w") as json_file:
+            json.dump(caminho_data, json_file, indent=4)  # Salva o arquivo JSON de forma legível
+            print("Arquivo caminho.json gerado com sucesso!")
+
 
 if __name__ == '__main__':
     if len(sys.argv) != 2:
