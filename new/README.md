@@ -5,5 +5,5 @@
 # adicionar escolha equipe
 
 # ADICIONAR VERIFICAÇÕES:
-#   visitou todas as casas
+#   visitou todas as casas: ok
 #   deve parar quando acabar as energias
