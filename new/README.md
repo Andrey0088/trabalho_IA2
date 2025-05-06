@@ -1,7 +1,7 @@
 # ler como casa : ok
 # registrar casas : ok
 
-# adicionar lutadores
+# implementar lutas
 # adicionar escolha equipe
 
 # ADICIONAR VERIFICAÇÕES:
