@@ -98,23 +98,39 @@ class ZodiacoMap:
             if 0 <= l < self.height and 0 <= c < self.width
         ]
 
-    def selecionar_time(self, cavaleiros):
-        vivos = [c for c in cavaleiros if c.pode_lutar()]
-        return vivos[:2]
+    def selecionar_time(self, cavaleiros, casa_id):
+        # Ordena os cavaleiros primeiro por energia restante (priorizando os que ainda podem lutar) e depois pelo poder cósmico
+        cavaleiros_disponiveis = sorted(
+            [c for c in cavaleiros if c.pode_lutar()],
+            key=lambda c: (c.energia, c.poder),
+            reverse=True
+        )
+
+        # Seleciona até dois cavaleiros para lutar
+        if len(cavaleiros_disponiveis) == 0:
+            return [], float('inf')  # Nenhum cavaleiro disponível
+
+        time_selecionado = cavaleiros_disponiveis[:2]  # Escolher até dois cavaleiros
+
+        # Calcula a dificuldade da casa e o tempo de batalha baseado no poder combinado dos selecionados
+        dificuldade = self.dificuldades.get(casa_id, 100)
+        poder_total = sum(c.poder for c in time_selecionado)
+        tempo_batalha = round(dificuldade / poder_total, 2)
+
+        return time_selecionado, tempo_batalha
 
     def lutar_em_casa(self, casa_id, cavaleiros):
-        time = self.selecionar_time(cavaleiros)
+        time, tempo_batalha = self.selecionar_time(cavaleiros, casa_id)
+
         if not time:
-            return float('inf'), cavaleiros, []
+            return float('inf'), cavaleiros, []  # Retorna "infinito" se nenhum cavaleiro estiver disponível
 
-        dificuldade = self.dificuldades.get(casa_id, 100)
-        poder_total = sum(c.poder for c in time)
-        tempo = round(dificuldade / poder_total, 2)
+        # Atualiza a energia dos cavaleiros que participaram da batalha
+        for cavaleiro in time:
+            cavaleiro.lutar()
 
-        for c in time:
-            c.lutar()
+        return tempo_batalha, cavaleiros, [c.nome for c in time]
 
-        return tempo, cavaleiros, [c.nome for c in time]
 
     def cavaleiros_vivos(self, cavaleiros):
         return any(c.pode_lutar() for c in cavaleiros)
@@ -268,3 +284,4 @@ if __name__ == '__main__':
     print("Resolvendo com A*...")
     z.solve()
     z.visualizar("saida_zodiaco.png")
+
