@@ -12,35 +12,55 @@
       align-items: center;
       justify-content: center;
       height: 100vh;
-      background: linear-gradient(to bottom, #a8e063, #56ab2f);
+      background: linear-gradient(to right, #b5bfcc, #69b0d1, #cae252); /* Gradiente do fundo */
       font-family: sans-serif;
     }
 
+    /* Container principal para o Mapa e Lista de Batalhas */
     #alocacao_mapa {
       display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.5);
+      flex-direction: row;  /* Alinhamento dos containers lado a lado */
+      align-items: flex-start;
+      justify-content: space-between;  /* Espaçamento entre os containers */
+      box-shadow: 0 4px 20px rgba(238, 201, 201, 0.5);
       padding: 20px;
-      background-color: white;
+      background-color: linear-gradient(to right, #afbdce, #a7c6d4, #cee073); /* Gradiente do fundo */
       border-radius: 10px;
+      width: 100%;  /* Controlar a largura dos containers */
+      max-width: 50%;  /* Limitar a largura máxima */
+      margin-top: 20px;
+      padding: 5%;
+      border-radius: 3%;
+    }
+
+    /* Título */
+    h2 {
+      font-size: 24px;
+      color: white;
+      font-weight: bold;
+      text-align: center;
+      margin-bottom: 20px;
+      background: linear-gradient(to right, #002a60, #00b0ff, #c8f000); /* Gradiente no título */
+      -webkit-background-clip: text;
+      color: transparent;
     }
 
     #mapa {
       display: grid;
-      grid-auto-rows: 30px;
+      grid-template-columns: repeat(42, 20px); /* Ajuste para 20px de largura */
+      grid-template-rows: repeat(42, 20px);   /* Ajuste para 20px de altura */
       gap: 1px;
       position: relative;
+      margin-right: 20px; /* Espaçamento entre o mapa e a lista */
     }
 
     .celula {
-      width: 30px;
-      height: 30px;
+      width: 20px;
+      height: 20px;
       background: #eee;
       text-align: center;
-      line-height: 30px;
-      font-size: 12px;
+      line-height: 20px;
+      font-size: 10px;
       position: relative;
     }
 
@@ -48,7 +68,7 @@
     .casa {
       background-color: #007bff;
       color: white;
-      font-size: 16px;
+      font-size: 14px;
       position: relative;
     }
 
@@ -56,12 +76,12 @@
     .fim { background-color: green; color: white; }
 
     .cavaleiro {
-      width: 30px;
-      height: 30px;
+      width: 20px;
+      height: 20px;
       position: absolute;
       top: 0;
       left: 0;
-      font-size: 18px;
+      font-size: 16px;
       animation: piscar 0.5s infinite alternate;
       z-index: 2;
     }
@@ -75,12 +95,12 @@
       position: absolute;
       top: 0;
       left: 0;
-      width: 30px;
-      height: 30px;
+      width: 20px;
+      height: 20px;
       background-color: rgba(255, 0, 0, 0.7);
       color: white;
       font-weight: bold;
-      font-size: 10px;
+      font-size: 8px;
       display: flex;
       align-items: center;
       justify-content: center;
@@ -93,12 +113,16 @@
       100% { opacity: 0; transform: scale(1.5); }
     }
 
+    /* Container da lista de batalhas */
     #batalhas-lista {
-      margin-top: 20px;
-      padding: 10px;
-      background: #f2f2f2;
-      border: 1px solid #ccc;
-      max-width: fit-content;
+      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.5);
+      padding: 20px;
+      background-color: white;
+      border-radius: 10px;
+      max-width: 300px;
+      overflow-y: auto;
+      margin-left: 20px;
+      flex-shrink: 0; /* Evitar que o container da lista encolha */
     }
 
     .batalha-item {
@@ -113,18 +137,17 @@
 </head>
 <body>
   
+  <!-- Container para o mapa e a lista de batalhas lado a lado -->
   <div id="alocacao_mapa">
-    <h2>Trajeto dos Cavaleiros</h2>
+    <!-- Mapa dos Cavaleiros -->
     <div id="mapa"></div>
-    <!-- <pre id="info"></pre> -->
-  </div>
 
-  <div id="batalhas-lista">
-    <h3>⚔️ Cavaleiros que lutaram em cada casa:</h3>
-    <div id="batalhas-detalhes"></div>
+    <!-- Lista de Batalhas -->
+    <div id="batalhas-lista">
+      <h3>⚔️ Cavaleiros que lutaram em cada casa:</h3>
+      <div id="batalhas-detalhes"></div>
+    </div>
   </div>
-
-  <audio id="espada-audio" src="espadas.mp3" preload="auto"></audio>
 
   <script>
     async function carregar() {
@@ -132,14 +155,13 @@
       const dados = await resp.json();
 
       const mapa = document.getElementById("mapa");
-      const info = document.getElementById("info");
       const batalhasDetalhes = document.getElementById("batalhas-detalhes");
-      const audio = document.getElementById("espada-audio");
 
       const maxY = Math.max(...dados.caminho.map(p => p[0])) + 1;
       const maxX = Math.max(...dados.caminho.map(p => p[1])) + 1;
 
-      mapa.style.gridTemplateColumns = `repeat(${maxX}, 30px)`;
+      mapa.style.gridTemplateColumns = `repeat(${maxX}, 20px)`;
+      mapa.style.gridTemplateRows = `repeat(${maxY}, 20px)`;
 
       // Criar grid
       const celulas = [];
@@ -153,11 +175,12 @@
         }
       }
 
-      // Marcar caminho e casas com batalha
+      // Marcar caminho
       dados.caminho.forEach(([y, x]) => {
         celulas[y][x].classList.add("caminho");
       });
 
+      // Marcar casas com batalha
       dados.batalhas.forEach(b => {
         const [y, x] = b.posicao;
         const cell = celulas[y][x];
@@ -179,7 +202,7 @@
 
       const marcador = document.createElement("div");
       marcador.className = "cavaleiro";
-      marcador.innerText = "♈";
+      marcador.innerText = "🎠";
       mapa.appendChild(marcador);
 
       let i = 0;
@@ -187,17 +210,21 @@
         if (i >= dados.caminho.length) return;
 
         const [y, x] = dados.caminho[i];
-        marcador.style.transform = `translate(${x * 31}px, ${y * 31}px)`;
+        marcador.style.transform = `translate(${x * 21}px, ${y * 21}px)`; // Ajuste na posição do marcador
 
-        // Verificar se há batalha nesta célula
-        const b = dados.batalhas.find(b => b.posicao[0] === y && b.posicao[1] === x);
-        if (b) {
+        // Verificar se o cavaleiro está em uma casa de batalha
+        const batalha = dados.batalhas.find(b => b.posicao[0] === y && b.posicao[1] === x);
+        if (batalha) {
+          // Limpar o conteúdo anterior da célula
+          celulas[y][x].innerText = "⚔"; 
+
+          // Exibir os nomes dos cavaleiros somente se o cavaleiro passar pela casa de batalha
+          celulas[y][x].innerHTML += `<br>${batalha.cavaleiros.join(", ")}`;
+
           const overlay = document.createElement("div");
           overlay.className = "luta-overlay";
           overlay.innerText = "LUTA!";
           celulas[y][x].appendChild(overlay);
-          audio.currentTime = 0;
-          audio.play();
         }
 
         i++;
@@ -205,7 +232,6 @@
       }
 
       setTimeout(andar, 800);
-      info.innerText = `Cavaleiros escolhidos: ${dados.cavaleiros_escolhidos.join(", ")}`;
     }
 
     carregar();
