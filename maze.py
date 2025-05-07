@@ -94,20 +94,22 @@ class ZodiacoMap:
         return [(a, s) for a, s in dirs if 0 <= s[0] < self.height and 0 <= s[1] < self.width and self.walls[s[0]][s[1]] != "montanha"]
 
     def selecionar_time(self):
+        # Filtra cavaleiros que ainda podem lutar
         vivos = [c for c in self.cavaleiros if c.pode_lutar()]
         if not vivos:
-            raise Exception("Todos os cavaleiros estao mortos!")
+            raise Exception("Todos os cavaleiros estão mortos!")
 
-        # Rotaciona entre os cavaleiros vivos, 2 por luta
-        time = []
-        for _ in range(2):
-            if not vivos:
-                break
-            c = vivos[self.vez_do_cavaleiro % len(vivos)]
-            time.append(c)
-            self.vez_do_cavaleiro += 1
+        
+        vivos.sort(key=lambda c: (-c.energia, -c.poder))
+
+        
+        time = vivos[:2]
+
+        
+        self.vez_do_cavaleiro = (self.vez_do_cavaleiro + len(time)) % len(self.cavaleiros)
 
         return time
+
 
     def lutar_em_casa(self, casa_id, state):
         if state in self.casas_visitadas:
@@ -171,6 +173,11 @@ class ZodiacoMapAStar(ZodiacoMap):
         self.explored = set()
 
         while not frontier.empty():
+            # Verifica se todos os cavaleiros estão sem energia
+            if all(not c.pode_lutar() for c in self.cavaleiros):
+                print("Todos os cavaleiros ficaram sem energia. A busca foi interrompida.")
+                return
+
             _, node = frontier.get()
 
             # Verifica se o objetivo foi alcançado e todas as casas foram visitadas
@@ -197,8 +204,6 @@ class ZodiacoMapAStar(ZodiacoMap):
                         self.lutar_em_casa(self.casas[state], state)
                     h = self.heuristic(state)
                     child = Node(state=state, parent=node, action=action, cost=custo, heuristic=h)
-                    frontier.put((child.cost + child.heuristic, child))
-
 if __name__ == '__main__':
     if len(sys.argv) != 2:
         sys.exit("Uso: python zodiaco_solver_a_star.py mapa.txt")
