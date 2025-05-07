@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <title>Mapa dos Cavaleiros</title>
+  <style>
+    #mapa {
+      display: grid;
+      grid-template-columns: repeat(15, 30px);
+      grid-auto-rows: 30px;
+      gap: 1px;
+      position: relative;
+    }
+
+    .celula {
+      width: 30px;
+      height: 30px;
+      background: #eee;
+      text-align: center;
+      line-height: 30px;
+      font-size: 12px;
+      position: relative;
+    }
+
+    .caminho { background-color: yellow; }
+    .casa {
+      background-color: #007bff;
+      color: white;
+      font-size: 16px;
+    }
+
+    .inicio { background-color: red; color: white; }
+    .fim { background-color: green; color: white; }
+
+    .cavaleiro {
+      width: 30px;
+      height: 30px;
+      position: absolute;
+      top: 0;
+      left: 0;
+      font-size: 18px;
+      animation: piscar 0.5s infinite alternate;
+      z-index: 2;
+    }
+
+    @keyframes piscar {
+      0% { opacity: 0.2; }
+      100% { opacity: 1; }
+    }
+
+    #batalhas-lista {
+      margin-top: 20px;
+      padding: 10px;
+      background: #f2f2f2;
+      border: 1px solid #ccc;
+      max-width: fit-content;
+    }
+
+    .batalha-item {
+      margin-bottom: 8px;
+      font-family: sans-serif;
+    }
+
+    .espada {
+      font-size: 14px;
+      margin-right: 5px;
+    }
+  </style>
+</head>
+<body>
+  <h2>Trajeto dos Cavaleiros</h2>
+  <div id="mapa"></div>
+  <pre id="info"></pre>
+
+  <div id="batalhas-lista">
+    <h3>⚔️ Cavaleiros que lutaram em cada casa:</h3>
+    <div id="batalhas-detalhes"></div>
+  </div>
+
+  <script>
+    async function carregar() {
+      const resp = await fetch("saida_caminho_zodiaco.json");
+      const dados = await resp.json();
+
+      const mapa = document.getElementById("mapa");
+      const info = document.getElementById("info");
+      const batalhasDetalhes = document.getElementById("batalhas-detalhes");
+
+      const maxY = Math.max(...dados.caminho.map(p => p[0])) + 1;
+      const maxX = Math.max(...dados.caminho.map(p => p[1])) + 1;
+
+      mapa.style.gridTemplateColumns = `repeat(${maxX}, 30px)`;
+
+      // Criar grid
+      const celulas = [];
+      for (let y = 0; y < maxY; y++) {
+        celulas[y] = [];
+        for (let x = 0; x < maxX; x++) {
+          const cell = document.createElement("div");
+          cell.className = "celula";
+
+          if (dados.caminho.some(p => p[0] === y && p[1] === x)) {
+            cell.classList.add("caminho");
+          }
+
+          const batalha = dados.batalhas.find(b => b.posicao[0] === y && b.posicao[1] === x);
+          if (batalha) {
+            cell.classList.add("casa");
+            cell.innerText = "⚔";
+            
+            // Mostrar abaixo do mapa também
+            const linha = document.createElement("div");
+            linha.className = "batalha-item";
+            linha.innerHTML = `<span class="espada">⚔</span><strong>Casa em (${y}, ${x})</strong>: ${batalha.cavaleiros.join(", ")}`;
+            batalhasDetalhes.appendChild(linha);
+          }
+
+          celulas[y][x] = cell;
+          mapa.appendChild(cell);
+        }
+      }
+
+      // Marcar início e fim
+      const inicio = dados.caminho[0];
+      const fim = dados.caminho[dados.caminho.length - 1];
+      celulas[inicio[0]][inicio[1]].classList.add("inicio");
+      celulas[inicio[0]][inicio[1]].innerText = "R";
+      celulas[fim[0]][fim[1]].classList.add("fim");
+      celulas[fim[0]][fim[1]].innerText = "G";
+
+      // Criar marcador animado
+      const marcador = document.createElement("div");
+      marcador.className = "cavaleiro";
+      marcador.innerText = "♈"; // pode trocar por outro emoji se quiser
+      mapa.appendChild(marcador);
+
+      let i = 0;
+      function andar() {
+        if (i >= dados.caminho.length) return;
+
+        const [y, x] = dados.caminho[i];
+        marcador.style.transform = `translate(${x * 31}px, ${y * 31}px)`;
+        i++;
+        setTimeout(andar, 500);
+      }
+
+      setTimeout(andar, 500);
+
+      info.innerText = `Cavaleiros escolhidos: ${dados.cavaleiros_escolhidos.join(", ")}`;
+    }
+
+    carregar();
+  </script>
+</body>
+</html>
