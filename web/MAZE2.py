@@ -105,12 +105,11 @@ class ZodiacoMap:
             key=lambda c: (c.energia, c.poder),
             reverse=True
         )
-
-        # Seleciona até dois cavaleiros para lutar #TODO # CRITICAL: ARRUMAR ISSO ARRUMAR ISSO !!!!!!! 
+        
         if len(cavaleiros_disponiveis) == 0:
             return [], float('inf')  # Nenhum cavaleiro disponível
 
-        time_selecionado = cavaleiros_disponiveis[:2]  # Escolher até dois cavaleiros
+        time_selecionado = cavaleiros_disponiveis[:2]  # Escolher cavaleiros
 
         # Calcula a dificuldade da casa e o tempo de batalha baseado no poder combinado dos selecionados
         dificuldade = self.dificuldades.get(casa_id, 100)
