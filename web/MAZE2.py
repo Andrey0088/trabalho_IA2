@@ -195,6 +195,7 @@ class ZodiacoMap:
                 tempo_total = node.tempo
                 batalhas = node.batalhas.copy()
 
+            # Fazer o caminho reverso(do final para o inicio) para obtencao do caminho da solucao, para isso precisa inverter a ordem no final, pois comeca do final e vai ate o inicio
             if state == self.goal and len(casas) == len(self.casas) and self.cavaleiros_vivos(cavaleiros):
                 caminho, atual = [], node
                 while atual.parent:
@@ -284,4 +285,5 @@ if __name__ == '__main__':
     print("Resolvendo com A*...")
     z.solve()
     z.visualizar("saida_zodiaco.png")
+
 
