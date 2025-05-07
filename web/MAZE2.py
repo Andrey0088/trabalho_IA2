@@ -106,7 +106,7 @@ class ZodiacoMap:
             reverse=True
         )
 
-        # Seleciona até dois cavaleiros para lutar
+        # Seleciona até dois cavaleiros para lutar #TODO # CRITICAL: ARRUMAR ISSO ARRUMAR ISSO !!!!!!! 
         if len(cavaleiros_disponiveis) == 0:
             return [], float('inf')  # Nenhum cavaleiro disponível
 

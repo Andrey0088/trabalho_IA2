@@ -1014,10 +1014,10 @@
                 30,
                 14
             ],
-            "tempo": 34.48,
+            "tempo": 40.0,
             "cavaleiros": [
-                "Seiya",
-                "Shiryu"
+                "Hyoga",
+                "Shun"
             ]
         },
         {
@@ -1025,10 +1025,10 @@
                 30,
                 37
             ],
-            "tempo": 37.93,
+            "tempo": 42.31,
             "cavaleiros": [
-                "Seiya",
-                "Shiryu"
+                "Ikki",
+                "Seiya"
             ]
         },
         {
@@ -1036,10 +1036,10 @@
                 22,
                 31
             ],
-            "tempo": 32.76,
+            "tempo": 35.19,
             "cavaleiros": [
-                "Seiya",
-                "Shiryu"
+                "Shiryu",
+                "Hyoga"
             ]
         },
         {
@@ -1047,10 +1047,10 @@
                 22,
                 3
             ],
-            "tempo": 31.03,
+            "tempo": 39.13,
             "cavaleiros": [
-                "Seiya",
-                "Shiryu"
+                "Shun",
+                "Ikki"
             ]
         },
         {
@@ -1058,10 +1058,10 @@
                 16,
                 3
             ],
-            "tempo": 32.0,
+            "tempo": 27.59,
             "cavaleiros": [
-                "Hyoga",
-                "Shun"
+                "Seiya",
+                "Shiryu"
             ]
         },
         {
@@ -1080,10 +1080,10 @@
                 12,
                 39
             ],
-            "tempo": 30.0,
+            "tempo": 28.85,
             "cavaleiros": [
-                "Hyoga",
-                "Shun"
+                "Ikki",
+                "Seiya"
             ]
         },
         {
@@ -1091,10 +1091,10 @@
                 8,
                 34
             ],
-            "tempo": 28.0,
+            "tempo": 25.93,
             "cavaleiros": [
-                "Hyoga",
-                "Shun"
+                "Shiryu",
+                "Hyoga"
             ]
         },
         {
@@ -1102,10 +1102,10 @@
                 8,
                 13
             ],
-            "tempo": 24.0,
+            "tempo": 26.09,
             "cavaleiros": [
-                "Hyoga",
-                "Shun"
+                "Shun",
+                "Ikki"
             ]
         },
         {
@@ -1113,9 +1113,10 @@
                 3,
                 8
             ],
-            "tempo": 45.45,
+            "tempo": 17.24,
             "cavaleiros": [
-                "Ikki"
+                "Seiya",
+                "Shiryu"
             ]
         },
         {
@@ -1123,9 +1124,10 @@
                 3,
                 34
             ],
-            "tempo": 50.0,
+            "tempo": 22.0,
             "cavaleiros": [
-                "Ikki"
+                "Hyoga",
+                "Shun"
             ]
         }
     ],
